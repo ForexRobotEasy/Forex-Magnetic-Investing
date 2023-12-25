@@ -1,0 +1,78 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                             Forex Magnetic Investing                    |
+//|                                           Developer: Forex Robot Easy Team          |
+//|                                           Website: forexroboteasy.com                   |
+//+------------------------------------------------------------------+
+
+// Include necessary libraries and define variables
+#include <Trade\Trade.mqh>
+#include <Math\Math.mqh>
+#include <Arrays\ArrayObj.mqh>
+
+CTrade trade;
+CArrayObj positions;
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Initialize trade module
+   trade.SetExpertMagicNumber(123456); // Set unique magic number for the expert advisor
+   
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Close all open positions before deinitialization
+   for(int i = 0; i < positions.Total(); i++)
+   {
+      CPosition position;
+      positions.Get(position, i);
+      trade.PositionClose(position);
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Market analysis and signal generation
+   // ... (Insert your market analysis code here)
+   
+   bool entrySignal = true; // Placeholder for entry signal, replace with actual signal generation logic
+   if(entrySignal)
+   {
+      // Place market order
+      CPosition position;
+      trade.PositionOpen(POSITION_TYPE_BUY, Symbol(), 0.1, 0, 0, 0, 'Entry Signal');
+      positions.Insert(position);
+   }
+   
+   // Order management and risk control
+   for(int i = 0; i < positions.Total(); i++)
+   {
+      CPosition position;
+      positions.Get(position, i);
+      
+      // Update stop-loss and take-profit levels
+      double stopLoss = 0.0; // Calculate stop-loss level based on risk management parameters
+      double takeProfit = 0.0; // Calculate take-profit level based on risk management parameters
+      trade.PositionModify(position, stopLoss, takeProfit);
+      
+      // Check for exit conditions
+      bool exitSignal = false; // Placeholder for exit signal, replace with actual exit signal logic
+      if(exitSignal)
+      {
+         trade.PositionClose(position);
+         positions.Delete(i);
+         i--;
+      }
+   }
+}
